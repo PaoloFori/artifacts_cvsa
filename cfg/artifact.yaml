@@ -1,0 +1,14 @@
+ArtifactCfg:
+  name: artifact
+  params: 
+    sampleRate: 512
+    th_hEOG: 70
+    th_vEOG: 70
+    th_peaks: 160
+    EOG_ch: [1,2,19]
+    freq_high_EOG: 1
+    freq_low_EOG: 10
+    freq_high_peaks: 2
+    filterOrder_EOG: 4
+    filterOrder_peaks: 4
+
