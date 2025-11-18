@@ -58,7 +58,7 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
 )
 
-# online CVSA library
+# online ARTIFACTS library
 add_library(${PROJECT_NAME}
                           src/ArtifactDetector.cpp
                           )

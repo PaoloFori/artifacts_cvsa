@@ -207,7 +207,7 @@ bool ArtifactDetector::configure(const std::string& param_name) {
     bool retval = false;
     XmlRpc::XmlRpcValue config;
     if (!this->nh_.getParam(param_name, config)) {
-        ROS_ERROR("Could not find parameter %s on the server, are you sure that it was pushed up correctly?", param_name.c_str());
+        ROS_ERROR("[ArtifactDetector] Could not find parameter %s on the server, are you sure that it was pushed up correctly?", param_name.c_str());
         return false;
     }
 
@@ -217,7 +217,7 @@ bool ArtifactDetector::configure(const std::string& param_name) {
 
 bool ArtifactDetector::configure(XmlRpc::XmlRpcValue& config) {
     if (this->is_configured_) {
-        ROS_ERROR("ArtifactDetector %s already being reconfigured", this->name_.c_str());
+        ROS_ERROR("[ArtifactDetector] ArtifactDetector %s already being reconfigured", this->name_.c_str());
     }
     this->is_configured_ = false;
 
@@ -229,7 +229,7 @@ bool ArtifactDetector::configure(XmlRpc::XmlRpcValue& config) {
 
 bool ArtifactDetector::loadConfiguration(XmlRpc::XmlRpcValue& config) {
     if(config.getType() != XmlRpc::XmlRpcValue::TypeStruct) {
-        ROS_ERROR("An ArtifactDetector configuration must be a map with fields name, and params");
+        ROS_ERROR("[ArtifactDetector] An ArtifactDetector configuration must be a map with fields name, and params");
         return false;
     }
 
@@ -240,11 +240,11 @@ bool ArtifactDetector::loadConfiguration(XmlRpc::XmlRpcValue& config) {
     if(config.hasMember("params")) {
         XmlRpc::XmlRpcValue params = config["params"];
         if(params.getType() != XmlRpc::XmlRpcValue::TypeStruct) {
-            ROS_ERROR("params must be a map");
+            ROS_ERROR("[ArtifactDetector] params must be a map");
             return false;
         } else {
             for(XmlRpc::XmlRpcValue::iterator it = params.begin(); it != params.end(); ++it) {
-                ROS_DEBUG("Loading param %s", it->first.c_str());
+                ROS_DEBUG("[ArtifactDetector] Loading param %s", it->first.c_str());
                 this->params_[it->first] = it->second;
             }
         }
@@ -254,12 +254,12 @@ bool ArtifactDetector::loadConfiguration(XmlRpc::XmlRpcValue& config) {
 
 bool ArtifactDetector::setName(XmlRpc::XmlRpcValue& config) {
     if(!config.hasMember("name")) {
-        ROS_ERROR("ArtifactDetector didn't have name defined, this is required");
+        ROS_ERROR("[ArtifactDetector] ArtifactDetector didn't have name defined, this is required");
         return false;
     }
 
     this->name_ = std::string(config["name"]);
-    ROS_DEBUG("Configuring ArtifactDetector with name %s", this->name_.c_str());
+    ROS_DEBUG("[ArtifactDetector] Configuring ArtifactDetector with name %s", this->name_.c_str());
     return true;
 }
 
