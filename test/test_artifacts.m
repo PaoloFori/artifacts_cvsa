@@ -4,7 +4,6 @@ datapath = '/home/paolo/cvsa/ic_cvsa_ws/src/artifacts_cvsa/test/';
 filein = [datapath ,'rawdata.csv'];
 data = readmatrix(filein);
 filterOrder = 4;
-band = [8, 14];
 bufferSize = 512;
 sampleRate = 512;
 frameSize = 32;
@@ -12,7 +11,6 @@ nsamples = size(data, 1);
 nchannels = size(data, 2);
 
 %% apply the processing
-disp(['      [INFO] start processing like ros for band ' num2str(band(1)) '-' num2str(band(2))]);
 header.Label = [{'FP1'}    {'FP2'}    {'F3'}    {'FZ'}    {'F4'}    {'FC1'}    {'FC2'}    {'C3'}    {'CZ'}    {'C4'}    {'CP1'}    {'CP2'}  ...
     {'P3'}    {'PZ'}    {'P4'}    {'POZ'}    {'O1'}    {'O2'}    {'EOG'}    {'F1'}    {'F2'} ...
     {'FC3'}    {'FCZ'}    {'FC4'}    {'C1'}    {'C2'}    {'CP3'}    {'CP4'}    {'P5'}    {'P1'}    {'P2'}    {'P6'}    ...
