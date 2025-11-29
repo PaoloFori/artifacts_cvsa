@@ -4,13 +4,13 @@ ArtifactDetector::ArtifactDetector(void) : nh_() {
     this->pub_ = this->nh_.advertise<artifacts_cvsa::artifact_presence>("/cvsa/artifact_presence", 10);
     this->sub_ = this->nh_.subscribe("/neurodata", 1, &ArtifactDetector::on_received_data, this);
 
-    this->buffer_ = new rosneuro::RingBuffer<float>();
     this->has_new_data_ = false;
     this->has_artifact_ = false;
     this->is_configured_ = false;
 }
 ArtifactDetector::~ArtifactDetector(){
-    delete this->buffer_;
+    for(auto& buffer : this->buffers_)
+        delete buffer;
 }
 
 void ArtifactDetector::run(){
@@ -50,21 +50,27 @@ void ArtifactDetector::set_message(){
 
 ArtifactDetector::ApplyResults ArtifactDetector::apply(void){
 
-    this->buffer_->add(this->data_in_.transpose().cast<float>()); // [samples x channels]
-    if(!this->buffer_->isfull()){
-        return ArtifactDetector::ApplyResults::BufferNotFull;
-    }
-
     try{
-        Eigen::MatrixXf data_buffer = this->buffer_->get(); // [samples x channels]
+
         int bufferSize, EOG_ch_size;
-        this->buffer_->getParam(std::string("size"), bufferSize);
+        this->buffers_[0]->getParam(std::string("size"), bufferSize);
         EOG_ch_size = this->EOG_ch_.size();
-        Eigen::MatrixXd dfet = Eigen::MatrixXd::Zero(bufferSize, EOG_ch_size);
 
         Eigen::MatrixXd data1, eog_data, peaks_data;
-        data1 = this->filter_low_EOG_.apply(data_buffer.cast<double>());
+        data1 = this->filter_low_EOG_.apply(this->data_in_.transpose().cast<double>());
         eog_data = this->filter_high_EOG_.apply(data1);
+        peaks_data = this->filter_high_peaks_.apply(this->data_in_.transpose().cast<double>());
+
+        this->buffers_[0]->add(eog_data.cast<float>()); // [samples x channels]
+        this->buffers_[1]->add(peaks_data.cast<float>()); // [samples x channels]
+
+        if(!this->buffers_[0]->isfull()){
+            return ArtifactDetector::ApplyResults::BufferNotFull;
+        }
+
+        Eigen::MatrixXd dfet = Eigen::MatrixXd::Zero(bufferSize, EOG_ch_size);
+
+        eog_data = this->buffers_[0]->get().cast<double>();
 
         // EOG
         for(int i = 0; i < EOG_ch_size; i++){
@@ -79,11 +85,11 @@ ArtifactDetector::ApplyResults ArtifactDetector::apply(void){
         }
 
         // peaks
-        int nchannels_noEOG = data_buffer.cols() - EOG_ch_size;
+        peaks_data = this->buffers_[0]->get().cast<double>();
+        int nchannels_noEOG = peaks_data.cols() - EOG_ch_size;
         dfet = Eigen::MatrixXd::Zero(bufferSize, nchannels_noEOG);
-        peaks_data = this->filter_high_peaks_.apply(data_buffer.cast<double>());
         int j = 0;
-        for(int i = 0; i < data_buffer.cols(); i++){
+        for(int i = 0; i < peaks_data.cols(); i++){
             if(std::find(this->EOG_ch_.begin(), this->EOG_ch_.end(), i+1) != this->EOG_ch_.end()){
                 continue; // skip EOG channels
             }
@@ -161,9 +167,13 @@ bool ArtifactDetector::configure(void){
     }
 
     // Buffer configuration 
-    if(!this->buffer_->configure("RingBufferCfg")){
-        ROS_ERROR("[%s] Buffer not configured correctly", this->buffer_->name().c_str());
-        return false;
+    for(int i = 0; i < 2; i++){
+        this->buffers_.push_back(new rosneuro::RingBuffer<float>());
+        if(!this->buffers_.back()->configure("RingBufferCfg")){
+            ROS_ERROR("[%s %s Hz] Buffer not configured correctly", 
+                this->buffers_.back()->name().c_str(),
+                std::string(i == 0 ? "EOG" : "peaks").c_str());
+        }
     }
 
     // Filter parameters

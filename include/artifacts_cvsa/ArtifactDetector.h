@@ -46,7 +46,7 @@ protected:
     ros::Subscriber sub_;
     ros::Publisher pub_;
 
-    rosneuro::Buffer<float>* buffer_;
+    std::vector<rosneuro::Buffer<float>*> buffers_;
     bool has_new_data_;
     rosneuro::DynamicMatrix<float> data_in_;
     int chunkSize_;
