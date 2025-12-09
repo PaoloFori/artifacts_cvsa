@@ -27,6 +27,7 @@
   <depend>rosneuro_buffers</depend>
   <depend>rosneuro_buffers_ringbuffer</depend>
   <depend>rosneuro_filters</depend>
+  <depend>rosneuro_filters_car</depend>
   <depend>rosneuro_filters_butterworth</depend>
   <depend>message_generation</depend>
   <depend>std_msgs</depend>

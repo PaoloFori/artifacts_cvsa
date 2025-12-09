@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   rosneuro_filters
   rosneuro_buffers
   rosneuro_buffers_ringbuffer
+  rosneuro_filters_car
   rosneuro_filters_butterworth
   std_msgs
   message_generation
@@ -39,6 +40,7 @@ catkin_package(
 	  std_msgs
     rosneuro_filters
     rosneuro_buffers
+    rosneuro_filters_car
     rosneuro_buffers_ringbuffer
     rosneuro_filters_butterworth
     rosneuro_msgs

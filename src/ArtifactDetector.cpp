@@ -56,10 +56,13 @@ ArtifactDetector::ApplyResults ArtifactDetector::apply(void){
         this->buffers_[0]->getParam(std::string("size"), bufferSize);
         EOG_ch_size = this->EOG_ch_.size();
 
+        Eigen::MatrixXf data_car;
+        data_car = this->car_filter_.apply(this->data_in_.transpose());
+
         Eigen::MatrixXd data1, eog_data, peaks_data;
-        data1 = this->filter_low_EOG_.apply(this->data_in_.transpose().cast<double>());
+        data1 = this->filter_low_EOG_.apply(data_car.cast<double>());
         eog_data = this->filter_high_EOG_.apply(data1);
-        peaks_data = this->filter_high_peaks_.apply(this->data_in_.transpose().cast<double>());
+        peaks_data = this->filter_high_peaks_.apply(data_car.cast<double>());
 
         this->buffers_[0]->add(eog_data.cast<float>()); // [samples x channels]
         this->buffers_[1]->add(peaks_data.cast<float>()); // [samples x channels]
@@ -74,7 +77,7 @@ ArtifactDetector::ApplyResults ArtifactDetector::apply(void){
 
         // EOG
         for(int i = 0; i < EOG_ch_size; i++){
-            dfet.col(i) = eog_data.col(this->EOG_ch_[i]-1).cast<double>();
+            dfet.col(i) = eog_data.col(this->EOG_ch_[i]).cast<double>();
         }
         Eigen::VectorXd heog, veog;
         heog = dfet.col(0) - dfet.col(1); 
@@ -85,12 +88,12 @@ ArtifactDetector::ApplyResults ArtifactDetector::apply(void){
         }
 
         // peaks
-        peaks_data = this->buffers_[0]->get().cast<double>();
+        peaks_data = this->buffers_[1]->get().cast<double>();
         int nchannels_noEOG = peaks_data.cols() - EOG_ch_size;
         dfet = Eigen::MatrixXd::Zero(bufferSize, nchannels_noEOG);
         int j = 0;
         for(int i = 0; i < peaks_data.cols(); i++){
-            if(std::find(this->EOG_ch_.begin(), this->EOG_ch_.end(), i+1) != this->EOG_ch_.end()){
+            if(std::find(this->EOG_ch_.begin(), this->EOG_ch_.end(), i) != this->EOG_ch_.end()){
                 continue; // skip EOG channels
             }
             dfet.col(j) = peaks_data.col(i-1).cast<double>();
@@ -161,9 +164,12 @@ bool ArtifactDetector::configure(void){
         ROS_ERROR("[ArtifactDetector] Cannot find param th_peaks");
         return false;
     }
-    if (!ArtifactDetector::getParam(std::string("EOG_ch"), this->EOG_ch_)) { // write down is important the order!
+    if (!ArtifactDetector::getParam(std::string("EOG_ch"), this->EOG_ch_)) { // is important the order!
         ROS_ERROR("[ArtifactDetector] Cannot find param EOG_ch");
         return false;
+    }
+    for(int i = 0; i < this->EOG_ch_.size(); i++){
+        this->EOG_ch_[i] = this->EOG_ch_[i] - 1; // to bring it in 0 based
     }
 
     // Buffer configuration 
@@ -205,10 +211,18 @@ bool ArtifactDetector::configure(void){
         return false;
     }
 
-    this->filter_low_EOG_    = rosneuro::Butterworth<double>(rosneuro::ButterType::LowPass,  filterOrder_EOG,  freq_low_EOG, sampleRate);
-    this->filter_high_EOG_   = rosneuro::Butterworth<double>(rosneuro::ButterType::HighPass,  filterOrder_EOG,  freq_high_EOG, sampleRate);
-    this->filter_high_peaks_ = rosneuro::Butterworth<double>(rosneuro::ButterType::HighPass,  filterOrder_peaks,  freq_high_peaks, sampleRate);
-    
+    try{
+        this->filter_low_EOG_    = rosneuro::Butterworth<double>(rosneuro::ButterType::LowPass,  filterOrder_EOG,  freq_low_EOG, sampleRate);
+        this->filter_high_EOG_   = rosneuro::Butterworth<double>(rosneuro::ButterType::HighPass,  filterOrder_EOG,  freq_high_EOG, sampleRate);
+        this->filter_high_peaks_ = rosneuro::Butterworth<double>(rosneuro::ButterType::HighPass,  filterOrder_peaks,  freq_high_peaks, sampleRate);
+
+        this->car_filter_ = rosneuro::Car<float>();
+        this->car_filter_.configure(this->EOG_ch_);
+
+    }catch(std::exception& e){
+        ROS_ERROR("[ArtifactDetector] Error in filter configuration: %s", e.what());
+        return false;
+    }
 
     return true;
 }

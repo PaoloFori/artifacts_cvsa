@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include "artifacts_cvsa/artifact_presence.h"
+#include "rosneuro_filters_car/Car.h"
 
 
 class ArtifactDetector {
@@ -56,6 +57,8 @@ protected:
     std::vector<int> EOG_ch_; // channel indexes for EOG detection are in 1-based notion
     int seq_id_;
     bool is_configured_;
+
+    rosneuro::Car<float> car_filter_;
 
     rosneuro::Butterworth<double> filter_low_EOG_;
     rosneuro::Butterworth<double> filter_high_EOG_;
