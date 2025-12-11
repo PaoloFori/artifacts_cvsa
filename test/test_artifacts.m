@@ -20,11 +20,11 @@ chunkSize = 32;
 eog.filterOrder = 4;
 eog.band = [1 10];
 eog.label = {'FP1', 'FP2', 'EOG'};
-eog.h_threshold = 70;
-eog.v_threshold = 70;
+eog.h_threshold = 60;
+eog.v_threshold = 60;
 muscle.filterOrder = 4;
 muscle.freq = 2; % remove antneuro problems
-muscle.threshold = 160;
+muscle.threshold = 100;
 artifact = artifact_rejection(data, header, nchannels, bufferSize, chunkSize, eog, muscle);
 
 %% Load file of rosneuro
