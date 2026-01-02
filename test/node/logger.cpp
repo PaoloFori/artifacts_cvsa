@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <eigen3/Eigen/Dense>
-#include <artifacts_cvsa/artifact_presence.h> 
-#include "artifacts_cvsa/utils.hpp" 
+#include <artifacts_bci/artifact_presence.h> 
+#include "artifacts_bci/utils.hpp" 
 #include <string>
 #include <vector>
 
@@ -37,7 +37,7 @@ public:
     }
 
 
-    void callback(const artifacts_cvsa::artifact_presence::ConstPtr& msg) {
+    void callback(const artifacts_bci::artifact_presence::ConstPtr& msg) {
         bool c_has_artifact = msg->has_artifact;
         if(c_has_artifact)
             this->artifacts_[msg->seq] = 1;

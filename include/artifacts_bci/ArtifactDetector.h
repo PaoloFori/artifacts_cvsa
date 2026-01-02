@@ -8,7 +8,7 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <string>
-#include "artifacts_cvsa/artifact_presence.h"
+#include "artifacts_bci/artifact_presence.h"
 #include "rosneuro_filters_car/Car.h"
 
 
@@ -64,7 +64,7 @@ protected:
     rosneuro::Butterworth<double> filter_high_EOG_;
     rosneuro::Butterworth<double> filter_high_peaks_;
 
-    artifacts_cvsa::artifact_presence out_;
+    artifacts_bci::artifact_presence out_;
     std::string modality_;
 
     std::string name_;

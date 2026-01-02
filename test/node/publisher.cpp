@@ -3,7 +3,7 @@
 #include <eigen3/Eigen/Dense> 
 #include <vector>
 #include <string>
-#include "artifacts_cvsa/utils.hpp" 
+#include "artifacts_bci/utils.hpp" 
 
 int main(int argc, char** argv) {
     ros::init(argc, argv, "test_publisher_csv");

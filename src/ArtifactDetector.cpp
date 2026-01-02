@@ -1,7 +1,7 @@
-#include "artifacts_cvsa/ArtifactDetector.h"
+#include "artifacts_bci/ArtifactDetector.h"
 
 ArtifactDetector::ArtifactDetector(void) : nh_() { 
-    this->pub_ = this->nh_.advertise<artifacts_cvsa::artifact_presence>("/cvsa/artifact_presence", 10);
+    this->pub_ = this->nh_.advertise<artifacts_bci::artifact_presence>("/cvsa/artifact_presence", 10);
     this->sub_ = this->nh_.subscribe("/neurodata", 1, &ArtifactDetector::on_received_data, this);
 
     this->has_new_data_ = false;

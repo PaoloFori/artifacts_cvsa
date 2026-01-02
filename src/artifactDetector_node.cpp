@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include "artifacts_cvsa/ArtifactDetector.h"
+#include "artifacts_bci/ArtifactDetector.h"
 
 int main(int argc, char** argv) {
 
@@ -7,16 +7,16 @@ int main(int argc, char** argv) {
     // ros initialization
     ros::init(argc, argv, "artifactDetector_node");
 
-    ArtifactDetector cvsa;
+    ArtifactDetector bci_artifact_detector;
     
-    if(cvsa.configure("ArtifactCfg") == false) {
+    if(bci_artifact_detector.configure("ArtifactCfg") == false) {
         std::cerr<<"SETUP ERROR"<<std::endl;
         return -1;
     }
 
     ROS_INFO("[INFO] Configuration done");
     
-    cvsa.run();
+    bci_artifact_detector.run();
     
     ros::shutdown();
     return 0;
