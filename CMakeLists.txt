@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-project(artifacts_cvsa)
+project(artifacts_bci)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -85,12 +85,12 @@ target_link_libraries(artifactDetector_node
                         ) 
 
 # test rosnode NODE
-add_executable(test_publisher_artifacts_cvsa test/node/publisher.cpp)
-target_link_libraries(test_publisher_artifacts_cvsa 
+add_executable(test_publisher_artifacts_bci test/node/publisher.cpp)
+target_link_libraries(test_publisher_artifacts_bci 
                       ${PROJECT_NAME}
                       )  
 
-add_executable(test_logger_artifacts_cvsa test/node/logger.cpp)
-target_link_libraries(test_logger_artifacts_cvsa 
+add_executable(test_logger_artifacts_bci test/node/logger.cpp)
+target_link_libraries(test_logger_artifacts_bci 
                       ${PROJECT_NAME}
                       )  

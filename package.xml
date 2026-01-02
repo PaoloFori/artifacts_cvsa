@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>artifacts_cvsa</name>
+  <name>artifacts_bci</name>
   <version>0.0.0</version>
-  <description>The artifacts_cvsa package</description>
+  <description>The artifacts_bci package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
