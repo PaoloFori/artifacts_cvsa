@@ -8,7 +8,7 @@ ArtifactCfg:
     EOG_ch: [1,2,19] # FP1, FP2, EOG
     freq_high_EOG: 1
     freq_low_EOG: 10
-    freq_high_peaks: 0.1
+    freq_high_peaks: 1
     filterOrder_EOG: 4
     filterOrder_peaks: 4
 
