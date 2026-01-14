@@ -96,7 +96,7 @@ ArtifactDetector::ApplyResults ArtifactDetector::apply(void){
             if(std::find(this->EOG_ch_.begin(), this->EOG_ch_.end(), i) != this->EOG_ch_.end()){
                 continue; // skip EOG channels
             }
-            dfet.col(j) = peaks_data.col(i-1).cast<double>();
+            dfet.col(j) = peaks_data.col(i).cast<double>();
             j++;
         }
 
