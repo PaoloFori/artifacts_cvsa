@@ -70,21 +70,28 @@ ArtifactDetector::ApplyResults ArtifactDetector::apply(void){
         if(!this->buffers_[0]->isfull()){
             return ArtifactDetector::ApplyResults::BufferNotFull;
         }
+        Eigen::MatrixXd dfet;
 
-        Eigen::MatrixXd dfet = Eigen::MatrixXd::Zero(bufferSize, EOG_ch_size);
+        if(EOG_ch_size > 0){
+            dfet = Eigen::MatrixXd::Zero(bufferSize, EOG_ch_size);
 
-        eog_data = this->buffers_[0]->get().cast<double>();
+            eog_data = this->buffers_[0]->get().cast<double>();
 
-        // EOG
-        for(int i = 0; i < EOG_ch_size; i++){
-            dfet.col(i) = eog_data.col(this->EOG_ch_[i]).cast<double>();
-        }
-        Eigen::VectorXd heog, veog;
-        heog = dfet.col(0) - dfet.col(1); 
-        if(EOG_ch_size == 2){
-            veog = (dfet.col(0) + dfet.col(1)) / 2.0f; 
-        }else if (EOG_ch_size == 3){
-            veog = (dfet.col(0) + dfet.col(1)) / 2.0f - dfet.col(2); 
+            // EOG
+            for(int i = 0; i < EOG_ch_size; i++){
+                dfet.col(i) = eog_data.col(this->EOG_ch_[i]).cast<double>();
+            }
+            Eigen::VectorXd heog, veog;
+            heog = dfet.col(0) - dfet.col(1); 
+            if(EOG_ch_size == 2){
+                veog = (dfet.col(0) + dfet.col(1)) / 2.0f; 
+            }else if (EOG_ch_size == 3){
+                veog = (dfet.col(0) + dfet.col(1)) / 2.0f - dfet.col(2); 
+            }
+
+            if(heog.cwiseAbs().maxCoeff() > this->th_hEOG_ || veog.cwiseAbs().maxCoeff() > this->th_vEOG_){
+                this->has_artifact_ = true;
+            }
         }
 
         // peaks
@@ -101,7 +108,7 @@ ArtifactDetector::ApplyResults ArtifactDetector::apply(void){
         }
 
         // decision message
-        if(heog.cwiseAbs().maxCoeff() > this->th_hEOG_ || veog.cwiseAbs().maxCoeff() > this->th_vEOG_ || dfet.cwiseAbs().maxCoeff() > this->th_peaks_){
+        if(dfet.cwiseAbs().maxCoeff() > this->th_peaks_){
             this->has_artifact_ = true;
         }
         this->set_message();
